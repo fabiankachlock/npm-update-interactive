@@ -1,0 +1,31 @@
+{
+  "name": "npm-update-interactive",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build && node build/cli.js",
+    "prettier": "prettier . --write",
+    "nui": "node build/cli.js"
+  },
+  "bin": {
+    "npm-update-interactive": "build/cli.js",
+    "nui": "build/cli.js"
+  },
+  "keywords": [],
+  "author": "Fabian Kachlock <contact@fabiankachlock.dev>",
+  "license": "MIT",
+  "dependencies": {
+    "prettier": "^3.5.3",
+    "prompts-ncu": "^3.0.2",
+    "rollup-plugin-node-externals": "^8.0.0",
+    "semver": "^7.7.1",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.15"
+  },
+  "packageManager": "pnpm@10.8.0+sha512.0e82714d1b5b43c74610193cb20734897c1d00de89d0e18420aebc5977fa13d780a9cb05734624e81ebd81cc876cd464794850641c48b9544326b5622ca29971"
+}
