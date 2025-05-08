@@ -1,0 +1,4 @@
+- highlight and preselect current version in version select
+- gracefully handle cases, where no version can be retrieved
+- hide the instructions for more screen space
+- incorporate the newest version somewhere
