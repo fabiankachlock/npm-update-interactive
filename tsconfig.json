@@ -3,7 +3,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "lib": ["es2021"],
+    "lib": ["ESNext"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "noFallthroughCasesInSwitch": true,
@@ -14,7 +14,10 @@
     "sourceMap": true,
     "strict": true,
     "noEmit": true,
-    "target": "es2021"
+    "target": "es2021",
+    "paths": {
+      "prompts-ncu": ["./node_modules/@types/prompts"]
+    }
   },
   "include": ["src", "vite.config.mts"]
 }
