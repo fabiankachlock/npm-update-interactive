@@ -1,5 +1,6 @@
 export type Dependency = {
   name: string
+  type: 'normal' | 'dev' | 'peer'
   version: string
   installedVersion?: string
 }
@@ -7,10 +8,4 @@ export type Dependency = {
 export type PackageUpdate = {
   dependency: Dependency
   newVersion: string
-}
-
-export type DependenciesResult = {
-  dependencies: Dependency[]
-  packageJsonPath: string
-  packageManager: string
 }

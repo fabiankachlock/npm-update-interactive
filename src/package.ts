@@ -1,7 +1,7 @@
 import fs from 'node:fs'
-import { readFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { Dependency } from './types'
+import { Dependency, PackageUpdate } from './types'
 
 export const findProjectPackageJson = (givenPath?: string): string | undefined => {
   let currentPath = givenPath ?? path.join(process.cwd(), 'package.json')
@@ -56,7 +56,11 @@ export const findePackageManager = async (packageJsonPath: string): Promise<stri
 export const getDependencies = async (packageJsonPath: string): Promise<Dependency[]> => {
   const packageJson = await readFile(packageJsonPath, 'utf-8')
 
-  const { dependencies = {}, devDependencies = {} } = JSON.parse(packageJson)
+  const {
+    dependencies = {},
+    devDependencies = {},
+    peerDependencies: {},
+  } = JSON.parse(packageJson)
   const dependenciesAndVersions = Object.entries(dependencies)
     .concat(Object.entries(devDependencies))
     .map(([name, version]) => {
@@ -68,6 +72,7 @@ export const getDependencies = async (packageJsonPath: string): Promise<Dependen
           const dependencyPackage = await readFile(dependencyPackageJsonPath, 'utf-8')
           resolve({
             name,
+            type: dependencies[name] ? 'normal' : devDependencies[name] ? 'dev' : 'peer',
             version: version as string,
             installedVersion: JSON.parse(dependencyPackage ?? '').version,
           })
@@ -81,4 +86,21 @@ export const getDependencies = async (packageJsonPath: string): Promise<Dependen
     })
 
   return Promise.all(dependenciesAndVersions.filter(Boolean) as Promise<Dependency>[])
+}
+
+export const writeUpdates = async (packageJsonPath: string, updates: PackageUpdate[]) => {
+  let packageJson = await readFile(packageJsonPath, 'utf-8')
+
+  for (const { dependency, newVersion } of updates) {
+    const regex = new RegExp(`"${dependency.name}":\\s*".*"`, 'g')
+    const oldVersionPrefix = dependency.version.charAt(0)
+    let versionToWrite = newVersion
+    if (isNaN(Number(oldVersionPrefix))) {
+      versionToWrite = oldVersionPrefix + newVersion
+    }
+    const updatedDependency = `"${dependency.name}": "${versionToWrite}"`
+    packageJson = packageJson.replace(regex, updatedDependency)
+  }
+
+  await writeFile(packageJsonPath, packageJson, 'utf-8')
 }

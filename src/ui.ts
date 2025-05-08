@@ -1,15 +1,26 @@
-import promps from 'prompts-ncu'
+import promps from 'prompts'
 import { Dependency, PackageUpdate } from './types'
+import { green, blue, yellow, gray, bold } from 'yoctocolors-cjs'
 
 export const getPackageToUpdate = async (dependencies: Dependency[]): Promise<string[]> => {
   const { packages } = await promps({
     type: 'autocompleteMultiselect',
     name: 'packages',
+    hint: '',
     message: 'Select packages to update',
-    choices: dependencies.map(dependency => ({
-      title: `${dependency.name}@${dependency.version} (${dependency.installedVersion})`,
-      value: dependency.name,
-    })),
+    choices: dependencies.map(dependency => {
+      const hasSameInstalledVersion = dependency.version.endsWith(dependency.installedVersion ?? '#')
+      const currentVersion = hasSameInstalledVersion
+        ? gray(`(${dependency.installedVersion})`)
+        : dependency.installedVersion
+          ? bold(dependency.installedVersion)
+          : ''
+
+      return {
+        title: `${formatDependencyName(dependency)}@${dependency.version} ${currentVersion}`,
+        value: dependency.name,
+      }
+    }),
   })
   return packages
 }
@@ -29,7 +40,7 @@ export const getNewPackageVersion = async (
         value: version,
       }))
       .concat({
-        title: 'Skip',
+        title: gray('Skip'),
         value: '##skip',
       }),
   })
@@ -40,16 +51,51 @@ export const getNewPackageVersion = async (
   return version
 }
 
-export const getNextStep = async (updates: PackageUpdate[]): Promise<'update' | 'select' | 'abort'> => {
+export const getNextStep = async (): Promise<'update' | 'select' | 'abort'> => {
   const { nextStep } = await promps({
     type: 'select',
     name: 'nextStep',
     message: 'What do you want to do next?',
     choices: [
-      { title: 'Update packages', value: 'update' },
-      { title: 'Select more packages', value: 'select' },
-      { title: 'Abort', value: 'abort' },
+      { title: green('Update packages'), value: 'update' },
+      { title: yellow('Select more packages'), value: 'select' },
+      { title: gray('Abort'), value: 'abort' },
     ],
   })
   return nextStep
+}
+
+export const formatDependencyName = (dependency: Dependency): string => {
+  if (dependency.type === 'normal') {
+    return green(dependency.name)
+  } else if (dependency.type === 'dev') {
+    return blue(dependency.name)
+  } else if (dependency.type === 'peer') {
+    return yellow(dependency.name)
+  }
+  return dependency.name
+}
+
+export const printUpdates = (updates: PackageUpdate[]): void => {
+  console.log(gray('Selected packages to update:'))
+  const table = updates.map(({ dependency, newVersion }) => [
+    formatDependencyName(dependency),
+    gray(dependency.installedVersion ?? dependency.version),
+    bold(gray('►')),
+    bold(newVersion),
+  ])
+
+  const maxLengths = table.reduce(
+    (acc, cell) => {
+      cell.forEach((value, index) => {
+        acc[index] = Math.max(acc[index], value.length)
+      })
+      return acc
+    },
+    [0, 0, 0, 0],
+  )
+
+  for (const row of table) {
+    console.log('- ' + row.map((value, index) => value.padEnd(maxLengths[index], ' ')).join(' '))
+  }
 }

@@ -14,9 +14,9 @@ importers:
       prettier:
         specifier: ^3.5.3
         version: 3.5.3
-      prompts-ncu:
-        specifier: ^3.0.2
-        version: 3.0.2
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
       rollup-plugin-node-externals:
         specifier: ^8.0.0
         version: 8.0.0(rollup@4.40.2)
@@ -29,6 +29,9 @@ importers:
       vite:
         specifier: ^6.3.5
         version: 6.3.5(@types/node@22.15.15)
+      yoctocolors-cjs:
+        specifier: ^2.1.2
+        version: 2.1.2
     devDependencies:
       '@types/node':
         specifier: ^22.15.15
@@ -330,10 +333,6 @@ packages:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
     engines: {node: '>=6'}
 
-  kleur@4.1.5:
-    resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
-    engines: {node: '>=6'}
-
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -355,9 +354,9 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
-  prompts-ncu@3.0.2:
-    resolution: {integrity: sha512-BthHeqP0vwvZPk3ZmqZXhssNabxM60aBCbg/gQdxF8bQW/dy6ZGQpS8SG10bUQTMy5HKh34iI0g0TstCRZyjag==}
-    engines: {node: '>= 14'}
+  prompts@2.4.2:
+    resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
+    engines: {node: '>= 6'}
 
   rollup-plugin-node-externals@8.0.0:
     resolution: {integrity: sha512-2HIOpWsWn5DqBoYl6iCAmB4kd5GoGbF68PR4xKR1YBPvywiqjtYvDEjHFodyqRL51iAMDITP074Zxs0OKs6F+g==}
@@ -433,6 +432,10 @@ packages:
         optional: true
       yaml:
         optional: true
+
+  yoctocolors-cjs@2.1.2:
+    resolution: {integrity: sha512-cYVsTjKl8b+FrnidjibDWskAv7UKOfcwaVZdp/it9n1s9fU3IkgDbhdIRKCW4JDsAlECJY0ytoVPT3sK6kideA==}
+    engines: {node: '>=18'}
 
 snapshots:
 
@@ -623,8 +626,6 @@ snapshots:
 
   kleur@3.0.3: {}
 
-  kleur@4.1.5: {}
-
   nanoid@3.3.11: {}
 
   picocolors@1.1.1: {}
@@ -639,9 +640,9 @@ snapshots:
 
   prettier@3.5.3: {}
 
-  prompts-ncu@3.0.2:
+  prompts@2.4.2:
     dependencies:
-      kleur: 4.1.5
+      kleur: 3.0.3
       sisteransi: 1.0.5
 
   rollup-plugin-node-externals@8.0.0(rollup@4.40.2):
@@ -700,3 +701,5 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.15.15
       fsevents: 2.3.3
+
+  yoctocolors-cjs@2.1.2: {}
