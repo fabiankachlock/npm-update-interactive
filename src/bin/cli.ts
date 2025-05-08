@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { program } from 'commander'
 import { findePackageManager, findProjectPackageJson, getDependencies, writeUpdates } from '../package'
 import { getNewPackageVersion, getNextStep, getPackageToUpdate, printUpdates } from '../ui'
