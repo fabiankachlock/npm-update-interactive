@@ -1,8 +1,7 @@
 {
-  "name": "npm-update-interactive",
+  "name": "@fabiankachlock/nui",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A small command line tool to update specific npm packages interactively.",
   "scripts": {
     "build": "vite build",
     "dev": "vite build && node build/cli.js",
@@ -13,7 +12,28 @@
     "npm-update-interactive": "build/cli.js",
     "nui": "build/cli.js"
   },
-  "keywords": [],
+  "files": [
+    "build",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "npm",
+    "dependencies",
+    "update",
+    "interactive",
+    "package.json",
+    "versions",
+    "cli"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fabiankachlock/npm-update-interactive.git"
+  },
+  "homepage": "https://github.com/fabiankachlock/npm-update-interactive#readme",
+  "bugs": {
+    "url": "https://github.com/fabiankachlock/npm-update-interactive/issues"
+  },
   "author": "Fabian Kachlock <contact@fabiankachlock.dev>",
   "license": "MIT",
   "dependencies": {

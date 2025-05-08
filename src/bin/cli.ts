@@ -20,7 +20,7 @@ const error = (text: string): string => `${magenta(bold('ERROR'))} ${text}`
 
 ;(async () => {
   console.log(fancy('nui  npm-update-interactive', true))
-  console.log(fancy(`v    ${pkg.version}`))
+  console.log(fancy(`ver  ${pkg.version}`))
 
   program
     .name('npm-update-interactive')
@@ -40,7 +40,7 @@ const error = (text: string): string => `${magenta(bold('ERROR'))} ${text}`
   console.log(fancy(`pkg  ${packageJsonPath}`))
 
   const packageManagerName = packageManager || (await findePackageManager(packageJsonPath))
-  console.log(fancy(`pm   ${packageManagerName}`))
+  console.log(fancy(`pkm  ${packageManagerName}`))
   console.log()
 
   const dependencies = await getDependencies(packageJsonPath)
