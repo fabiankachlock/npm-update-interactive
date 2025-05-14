@@ -34,9 +34,9 @@ export const getAvailableVersions = (
 }
 
 export const runInstall = (packageManager: string, packageJsonPath: string): Promise<void> => {
-  let command = `${packageManager} install --prefer-offline --no-audit --no-progress`
+  let command = `${packageManager} install --no-audit --no-progress`
   if (packageManager === 'pnpm') {
-    command = `${packageManager} install --prefer-offline `
+    command = `${packageManager} install`
   }
 
   const { promise, resolve, reject } = Promise.withResolvers<void>()
