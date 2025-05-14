@@ -42,7 +42,6 @@ const error = (text: string): string => `${magenta(bold('ERROR'))} ${text}`
 
   const packageManagerName = packageManager || (await findePackageManager(packageJsonPath))
   console.log(fancy(`pkm  ${packageManagerName}`))
-  console.log()
 
   const dependencies = await getDependencies(packageJsonPath)
   const allUpdates = {} as Record<string, PackageUpdate>

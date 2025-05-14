@@ -7,6 +7,7 @@ export const getPackageToUpdate = async (dependencies: Dependency[]): Promise<st
     type: 'autocompleteMultiselect',
     name: 'packages',
     hint: '',
+    instructions: false,
     message: 'Select packages to update',
     choices: dependencies.map(dependency => {
       const hasSameInstalledVersion = dependency.version.endsWith(dependency.installedVersion ?? '#')
@@ -32,6 +33,7 @@ export const getNewPackageVersion = async (
   const { version } = await promps({
     type: 'autocomplete',
     name: 'version',
+    instructions: false,
     hint: 'Select skip to skip updating this package.',
     message: `Select a new version for '${packageName}'`,
     choices: availableVersions
