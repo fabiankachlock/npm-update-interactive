@@ -17,7 +17,7 @@ const fancy = (text: string, renderBold?: boolean): string => {
 
 const info = (text: string): string => `${bgBlack(` ${italic(blue(text))}${''.padEnd(width - text.length - 1)}`)}`
 
-const error = (text: string): string => `${magenta(bold('ERROR'))} ${text}`
+const error = (text: string): string => bgBlack(` ${magenta(bold('ERROR'))} ${text} `)
 
 ;(async () => {
   console.log(fancy('nui  npm-update-interactive', true))
@@ -56,18 +56,33 @@ const error = (text: string): string => `${magenta(bold('ERROR'))} ${text}`
     if (updates) {
       for (const dependencyName of updates) {
         const dependency = dependencies.find(dependency => dependency.name === dependencyName)!
+        try {
         const versions = await getAvailableVersions(packageJsonPath, dependencyName, packageManagerName)
-        const newVersion = await getNewPackageVersion(dependencyName, versions)
+          if (!versions || versions.length === 0) {
+            console.error(error(`No versions found for package: ${formatDependencyName(dependency)}`))
+            continue
+          }
+
+          const newVersion = await getNewPackageVersion(dependencyName, versions, dependency.installedVersion)
         if (newVersion) {
           allUpdates[dependencyName] = {
             dependency,
             newVersion,
           }
+          }
+        } catch (err) {
+          console.error(error(`Cant get new version for package: ${formatDependencyName(dependency)}`))
+          console.error(err)
         }
       }
     }
 
+    if (Object.keys(allUpdates).length === 0) {
+      console.log(info('No updates selected'))
+      process.exit(0)
+    } else {
     printUpdates(Object.values(allUpdates))
+    }
 
     const nextStep = await getNextStep()
     if (nextStep === 'abort') {

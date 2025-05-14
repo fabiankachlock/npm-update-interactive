@@ -19,13 +19,13 @@ export const getAvailableVersions = (
       cwd: path.dirname(packageJsonPath),
       encoding: 'utf-8',
     },
-    (error, stdout, stderr) => {
+    (error, stdout) => {
       if (error) {
         reject(error)
       }
 
-      const version: string[] = JSON.parse(stdout)
-      const sortedVersions = semver.rsort(version)
+      const versions: string[] = JSON.parse(stdout)
+      const sortedVersions = semver.rsort(Array.isArray(versions) ? versions : [])
       resolve(sortedVersions)
     },
   )
