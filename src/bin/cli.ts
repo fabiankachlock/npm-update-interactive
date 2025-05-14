@@ -50,7 +50,6 @@ const error = (text: string): string => bgBlack(` ${magenta(bold('ERROR'))} ${te
     const updates = await getPackageToUpdate(dependencies)
     if ((!updates || updates.length === 0) && Object.keys(allUpdates).length === 0) {
       console.log(info('No packages selected'))
-      process.exit(0)
     }
 
     if (updates) {
@@ -79,7 +78,6 @@ const error = (text: string): string => bgBlack(` ${magenta(bold('ERROR'))} ${te
 
     if (Object.keys(allUpdates).length === 0) {
       console.log(info('No updates selected'))
-      process.exit(0)
     } else {
       printUpdates(Object.values(allUpdates))
     }

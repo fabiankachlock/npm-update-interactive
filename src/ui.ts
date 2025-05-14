@@ -40,7 +40,12 @@ export const getNewPackageVersion = async (
     message: `Select a new version for '${packageName}'`,
     choices: availableVersions
       .map(version => ({
-        title: version === currentVersion ? bold(green(version)) : version,
+        title:
+          version === currentVersion
+            ? bold(green(version))
+            : version === availableVersions[0]
+              ? bold(version)
+              : version,
         value: version,
       }))
       .concat({
