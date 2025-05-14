@@ -18,7 +18,7 @@ export const getPackageToUpdate = async (dependencies: Dependency[]): Promise<st
           : ''
 
       return {
-        title: `${formatDependencyName(dependency)}@${dependency.version} ${currentVersion}`,
+        title: `${formatDependencyName(dependency, '█')} ${dependency.name}@${dependency.version} ${currentVersion}`,
         value: dependency.name,
       }
     }),
@@ -29,16 +29,18 @@ export const getPackageToUpdate = async (dependencies: Dependency[]): Promise<st
 export const getNewPackageVersion = async (
   packageName: string,
   availableVersions: string[],
+  currentVersion?: string,
 ): Promise<string | undefined> => {
   const { version } = await promps({
     type: 'autocomplete',
     name: 'version',
     instructions: false,
+    initial: currentVersion ?? availableVersions[0],
     hint: 'Select skip to skip updating this package.',
     message: `Select a new version for '${packageName}'`,
     choices: availableVersions
       .map(version => ({
-        title: version,
+        title: version === currentVersion ? bold(green(version)) : version,
         value: version,
       }))
       .concat({
@@ -67,15 +69,16 @@ export const getNextStep = async (): Promise<'update' | 'select' | 'abort'> => {
   return nextStep
 }
 
-export const formatDependencyName = (dependency: Dependency): string => {
+export const formatDependencyName = (dependency: Dependency, text?: string): string => {
+  const textToFormat = text || dependency.name
   if (dependency.type === 'normal') {
-    return green(dependency.name)
+    return green(textToFormat)
   } else if (dependency.type === 'dev') {
-    return blue(dependency.name)
+    return blue(textToFormat)
   } else if (dependency.type === 'peer') {
-    return yellow(dependency.name)
+    return yellow(textToFormat)
   }
-  return dependency.name
+  return textToFormat
 }
 
 export const printUpdates = (updates: PackageUpdate[]): void => {

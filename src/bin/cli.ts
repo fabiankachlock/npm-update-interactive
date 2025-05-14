@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { program } from 'commander'
 import { findePackageManager, findProjectPackageJson, getDependencies, writeUpdates } from '../package'
-import { getNewPackageVersion, getNextStep, getPackageToUpdate, printUpdates } from '../ui'
+import { formatDependencyName, getNewPackageVersion, getNextStep, getPackageToUpdate, printUpdates } from '../ui'
 import { PackageUpdate } from '../types'
 import { getAvailableVersions, runInstall } from '../packageManager'
 import { bgBlack, red, blue, magenta, bold, italic } from 'yoctocolors-cjs'
@@ -57,18 +57,18 @@ const error = (text: string): string => bgBlack(` ${magenta(bold('ERROR'))} ${te
       for (const dependencyName of updates) {
         const dependency = dependencies.find(dependency => dependency.name === dependencyName)!
         try {
-        const versions = await getAvailableVersions(packageJsonPath, dependencyName, packageManagerName)
+          const versions = await getAvailableVersions(packageJsonPath, dependencyName, packageManagerName)
           if (!versions || versions.length === 0) {
             console.error(error(`No versions found for package: ${formatDependencyName(dependency)}`))
             continue
           }
 
           const newVersion = await getNewPackageVersion(dependencyName, versions, dependency.installedVersion)
-        if (newVersion) {
-          allUpdates[dependencyName] = {
-            dependency,
-            newVersion,
-          }
+          if (newVersion) {
+            allUpdates[dependencyName] = {
+              dependency,
+              newVersion,
+            }
           }
         } catch (err) {
           console.error(error(`Cant get new version for package: ${formatDependencyName(dependency)}`))
@@ -81,7 +81,7 @@ const error = (text: string): string => bgBlack(` ${magenta(bold('ERROR'))} ${te
       console.log(info('No updates selected'))
       process.exit(0)
     } else {
-    printUpdates(Object.values(allUpdates))
+      printUpdates(Object.values(allUpdates))
     }
 
     const nextStep = await getNextStep()
