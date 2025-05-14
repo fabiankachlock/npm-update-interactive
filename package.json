@@ -1,6 +1,6 @@
 {
   "name": "@fabiankachlock/nui",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A small command line tool to update specific npm packages interactively.",
   "scripts": {
     "build": "vite build",
