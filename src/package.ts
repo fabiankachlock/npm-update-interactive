@@ -56,32 +56,31 @@ export const findePackageManager = async (packageJsonPath: string): Promise<stri
 export const getDependencies = async (packageJsonPath: string): Promise<Dependency[]> => {
   const packageJson = await readFile(packageJsonPath, 'utf-8')
 
-  const {
-    dependencies = {},
-    devDependencies = {},
-    peerDependencies: {},
-  } = JSON.parse(packageJson)
+  const { dependencies = {}, devDependencies = {}, peerDependencies = {} } = JSON.parse(packageJson)
+
   const dependenciesAndVersions = Object.entries(dependencies)
     .concat(Object.entries(devDependencies))
+    .concat(Object.entries(peerDependencies))
     .map(([name, version]) => {
+      const dependencyInfo: Dependency = {
+        name,
+        type: dependencies[name] ? 'normal' : devDependencies[name] ? 'dev' : 'peer',
+        version: version as string,
+      }
+
       try {
         const dependencyPackageJsonPath = findDependencyPackageJson(packageJsonPath, name)
-        if (!dependencyPackageJsonPath) return undefined
+        if (!dependencyPackageJsonPath) return dependencyInfo
 
         return new Promise<Dependency>(async (resolve, reject) => {
           const dependencyPackage = await readFile(dependencyPackageJsonPath, 'utf-8')
           resolve({
-            name,
-            type: dependencies[name] ? 'normal' : devDependencies[name] ? 'dev' : 'peer',
-            version: version as string,
+            ...dependencyInfo,
             installedVersion: JSON.parse(dependencyPackage ?? '').version,
           })
         })
       } catch {
-        return {
-          name,
-          version: version as string,
-        } as Dependency
+        return dependencyInfo
       }
     })
 
