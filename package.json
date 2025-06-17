@@ -1,11 +1,11 @@
 {
   "name": "@fabiankachlock/nui",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A small command line tool to update specific npm packages interactively.",
   "scripts": {
     "build": "vite build",
     "dev": "vite build && node build/cli.js",
-    "prettier": "^4.0.0-alpha.12",
+    "prettier": "prettier . --write",
     "nui": "node build/cli.js"
   },
   "bin": {
