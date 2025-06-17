@@ -1,6 +1,6 @@
 import promps from 'prompts'
 import { Dependency, PackageUpdate } from './types'
-import { green, blue, cyan, yellow, gray, bold, reset } from 'yoctocolors-cjs'
+import { green, blue, cyan, yellow, gray, bold } from 'yoctocolors-cjs'
 import { GenericFormatter, SingleBar } from 'cli-progress'
 
 export const getPackageToUpdate = async (dependencies: Dependency[]): Promise<string[]> => {
@@ -132,15 +132,24 @@ export const createProgressBar = (message: string) => {
   })
 }
 
+export type ComplexProgress = {
+  done: number
+  inProgress: number
+}
+
 const createBarFormatter =
   (message: string): GenericFormatter =>
-  (options, params, payload) => {
+  (options, params, payload?: ComplexProgress) => {
     const width = options.barsize ?? 60
-    const doneWidth = Math.round(width * (params.value / params.total))
-    const incompleteWidth = width - doneWidth
+    const doneWidth = Math.round(width * ((payload?.done ?? 0) / params.total))
+    const inProgressWidth = Math.round(width * ((payload?.inProgress ?? 0) / params.total))
+    const incompleteWidth = width - doneWidth - inProgressWidth
+
     const doneBar = (options.barCompleteChar ?? '#').repeat(doneWidth)
+    const inProgressBar = (options.barCompleteChar ?? '#').repeat(inProgressWidth)
     const incompleteBar = (options.barIncompleteChar ?? '-').repeat(incompleteWidth)
+
     const progress = `${cyan(params.value.toString())}/${params.total}`
 
-    return `${message} [${cyan(doneBar)}${gray(incompleteBar)}] ${progress}`
+    return `${message} [${cyan(doneBar)}${gray(inProgressBar)}${gray(incompleteBar)}] ${progress}`
   }

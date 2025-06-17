@@ -6,6 +6,7 @@ import { PackageUpdate } from '../types'
 import { getAvailableVersions, runInstall } from '../packageManager'
 import { confirm, createProgressBar, formatDependencyName, printUpdates } from '../ui'
 import semver from 'semver'
+import { cpus } from 'node:os'
 
 export const runAuto = async (command: Command) => {
   const { packageJsonPath, packageManagerName } = await prepare(command)
@@ -21,18 +22,35 @@ export const runAuto = async (command: Command) => {
   const allUpdates = {} as Record<string, PackageUpdate>
   const progressBar = createProgressBar('Checking for updates... ')
   progressBar.start(dependencies.length, 0)
+  let done = 0
+  let inProgress = 0
 
-  for (const dependency of dependencies) {
-    progressBar.increment(1)
+  const startProcessing = () => {
+    progressBar.update({
+      done,
+      inProgress: ++inProgress,
+    })
+  }
+
+  const finishProcessing = () => {
+    progressBar.update({
+      done: ++done,
+      inProgress: --inProgress,
+    })
+  }
+
+  const tasks = dependencies.map(dependency => async () => {
+    startProcessing()
     if (filter && !dependency.name.includes(filter)) {
-      continue
+      finishProcessing()
+      return
     }
 
     try {
       const versions = await getAvailableVersions(packageJsonPath, dependency.name, packageManagerName)
       if (!versions || versions.length === 0) {
         console.error(error(`No versions found for package: ${formatDependencyName(dependency)}`))
-        continue
+        process.exit(1)
       }
 
       let eligableVersions = versions.filter(version =>
@@ -68,8 +86,15 @@ export const runAuto = async (command: Command) => {
     } catch (err) {
       console.error(`Cant get new version for package: ${dependency.name}`)
       console.error(err)
+      process.exit(1)
+    } finally {
+      finishProcessing()
     }
-  }
+  })
+
+  // a dynamic import is used here to load this esm module from the current cjs context
+  const limit = (await import('p-limit')).default(cpus().length || 4)
+  await Promise.all(tasks.map(p => limit(p)))
 
   progressBar.stop()
 
