@@ -12,12 +12,15 @@ import { runAuto } from '../commands/auto'
     .name('npm-update-interactive')
     .description('Update npm packages interactively')
     .version(pkg.version)
-    .option('-c, --config <path>', 'Path to the package json file', undefined)
-    .option('-p, --package-manager <name>', 'Package manager to use', undefined)
+    .option('-c, --config <path>', 'path to the package json file', undefined)
+    .option('-p, --package-manager <name>', 'package manager to use', undefined)
+    .enablePositionalOptions()
 
   program
     .command('interactive', { isDefault: true })
     .description('Start updating packages in interactive mode')
+    .configureHelp({ showGlobalOptions: true })
+    .passThroughOptions()
     .action(async (_, command) => {
       console.log(fancy(`mod  interactive`))
       await runInteractive(command)
@@ -26,10 +29,12 @@ import { runAuto } from '../commands/auto'
   program
     .command('auto')
     .description('Automatically update packages without interaction')
-    .option('-y, --yes', 'Skip confirmation prompts', false)
-    .option('-f, --filter <filter>', 'Filter packages to update', undefined)
-    .option('--pre <pre>', 'Install a the latest version of a prerelease', undefined)
-    .option('-s, --save', 'Dont install breaking changes', false)
+    .configureHelp({ showGlobalOptions: true })
+    .option('-y, --yes', 'skip confirmation prompts', false)
+    .option('-f, --filter <filter>', 'filter packages to update', undefined)
+    .option('--pre <pre>', 'install a the latest version of a prerelease', undefined)
+    .option('-s, --save', 'dont install breaking changes', false)
+    .passThroughOptions()
     .action(async (_, command) => {
       console.log(fancy(`mod  auto`))
       await runAuto(command)

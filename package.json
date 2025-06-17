@@ -5,7 +5,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite build && node build/cli.js",
-    "prettier": "prettier . --write",
+    "prettier": "^4.0.0-alpha.12",
     "nui": "node build/cli.js"
   },
   "bin": {
@@ -37,7 +37,7 @@
   "author": "Fabian Kachlock <contact@fabiankachlock.dev>",
   "license": "MIT",
   "dependencies": {
-    "commander": "^13.1.0",
+    "commander": "14.0.0",
     "prettier": "^3.5.3",
     "prompts": "^2.4.2",
     "rollup-plugin-node-externals": "^8.0.0",

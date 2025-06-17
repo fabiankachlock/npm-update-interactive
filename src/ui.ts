@@ -74,6 +74,16 @@ export const getNextStep = async (): Promise<'update' | 'select' | 'abort'> => {
   return nextStep
 }
 
+export const confirm = async (message: string): Promise<boolean> => {
+  const { confirm } = await promps({
+    type: 'confirm',
+    name: 'confirm',
+    message,
+    initial: false,
+  })
+  return confirm
+}
+
 export const formatDependencyName = (dependency: Dependency, text?: string): string => {
   const textToFormat = text || dependency.name
   if (dependency.type === 'normal') {
