@@ -4,7 +4,7 @@ import { error, fancy, info } from '../logging'
 import { getDependencies, writeUpdates } from '../package'
 import { PackageUpdate } from '../types'
 import { getAvailableVersions, runInstall } from '../packageManager'
-import { confirm, formatDependencyName, printUpdates } from '../ui'
+import { confirm, createProgressBar, formatDependencyName, printUpdates } from '../ui'
 import semver from 'semver'
 
 export const runAuto = async (command: Command) => {
@@ -19,8 +19,11 @@ export const runAuto = async (command: Command) => {
 
   const dependencies = await getDependencies(packageJsonPath)
   const allUpdates = {} as Record<string, PackageUpdate>
+  const progressBar = createProgressBar('Checking for updates... ')
+  progressBar.start(dependencies.length, 0)
 
   for (const dependency of dependencies) {
+    progressBar.increment(1)
     if (filter && !dependency.name.includes(filter)) {
       continue
     }
@@ -67,6 +70,8 @@ export const runAuto = async (command: Command) => {
       console.error(err)
     }
   }
+
+  progressBar.stop()
 
   if (Object.keys(allUpdates).length === 0) {
     console.log(info('No updates selected'))
