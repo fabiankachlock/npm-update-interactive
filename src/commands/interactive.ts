@@ -1,23 +1,13 @@
 import { Command } from 'commander'
-import { findePackageManager, findProjectPackageJson, getDependencies, writeUpdates } from '../package'
-import { error, fancy, info } from '../logging'
+import { getDependencies, writeUpdates } from '../package'
+import { error, info } from '../logging'
 import { PackageUpdate } from '../types'
 import { formatDependencyName, getNewPackageVersion, getNextStep, getPackageToUpdate, printUpdates } from '../ui'
 import { getAvailableVersions, runInstall } from '../packageManager'
+import { prepare } from '../prepare'
 
-export const runInteractive = async (program: Command) => {
-  const { config, packageManager } = program.opts()
-
-  const packageJsonPath = findProjectPackageJson(config)
-  if (!packageJsonPath) {
-    console.error(error('No package.json found'))
-    process.exit(1)
-  }
-  console.log(fancy(`pkg  ${packageJsonPath}`))
-
-  const packageManagerName = packageManager || (await findePackageManager(packageJsonPath))
-  console.log(fancy(`pkm  ${packageManagerName}`))
-
+export const runInteractive = async (command: Command) => {
+  const { packageJsonPath, packageManagerName } = await prepare(command)
   const dependencies = await getDependencies(packageJsonPath)
   const allUpdates = {} as Record<string, PackageUpdate>
 

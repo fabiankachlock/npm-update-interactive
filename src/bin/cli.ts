@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 import { program } from 'commander'
-import { fancy, info } from '../logging'
+import { fancy } from '../logging'
 import pkg from '../../package.json'
 import { runInteractive } from '../commands/interactive'
+import { runAuto } from '../commands/auto'
 ;(async () => {
   console.log(fancy('nui  npm-update-interactive', true))
   console.log(fancy(`ver  ${pkg.version}`))
@@ -17,17 +18,22 @@ import { runInteractive } from '../commands/interactive'
   program
     .command('interactive', { isDefault: true })
     .description('Start updating packages in interactive mode')
-    .action((_, command) => {
+    .action(async (_, command) => {
       console.log(fancy(`mod  interactive`))
-      runInteractive(command)
+      await runInteractive(command)
     })
 
   program
     .command('auto')
     .description('Automatically update packages without interaction')
-    .action(() => {
-      console.log(info('Starting automatic update mode...'))
+    .option('-y, --yes', 'Skip confirmation prompts', false)
+    .option('-f, --filter <filter>', 'Filter packages to update', undefined)
+    .option('--pre <pre>', 'Install a the latest version of a prerelease', undefined)
+    .option('-s, --save', 'Dont install breaking changes', false)
+    .action(async (_, command) => {
+      console.log(fancy(`mod  auto`))
+      await runAuto(command)
     })
 
-  program.parse(process.argv)
+  await program.parseAsync(process.argv)
 })()
