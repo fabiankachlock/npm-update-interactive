@@ -12,8 +12,8 @@ import { runAuto } from '../commands/auto'
     .name('npm-update-interactive')
     .description('Update npm packages interactively')
     .version(pkg.version)
-    .option('-c, --config <path>', 'path to the package json file', undefined)
-    .option('-p, --package-manager <name>', 'package manager to use', undefined)
+    .option('-c, --config <path>', 'path to the package json file')
+    .option('-p, --package-manager <name>', 'package manager to use')
     .enablePositionalOptions()
 
   program
@@ -31,9 +31,9 @@ import { runAuto } from '../commands/auto'
     .description('Automatically update packages without interaction')
     .configureHelp({ showGlobalOptions: true })
     .option('-y, --yes', 'skip confirmation prompts', false)
-    .option('-f, --filter <filter>', 'filter packages to update', undefined)
-    .option('--pre <pre>', 'install a the latest version of a prerelease', undefined)
-    .option('-s, --save', 'dont install breaking changes', false)
+    .option('-f, --filter <filter>', 'filter packages to update')
+    .option('--pre [pre]', 'install a the latest version of a prerelease, use "*" to install any prerelease')
+    .option('-s, --save', 'dont install breaking changes')
     .passThroughOptions()
     .action(async (_, command) => {
       console.log(fancy(`mod  auto`))

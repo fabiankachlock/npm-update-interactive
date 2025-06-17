@@ -5,11 +5,16 @@ import { getDependencies, writeUpdates } from '../package'
 import { PackageUpdate } from '../types'
 import { getAvailableVersions, runInstall } from '../packageManager'
 import { confirm, formatDependencyName, printUpdates } from '../ui'
+import semver from 'semver'
 
 export const runAuto = async (command: Command) => {
   const { packageJsonPath, packageManagerName } = await prepare(command)
   const { yes, filter, pre, save } = command.opts()
-  const fancyOptions = [save ? 'non-breaking' : 'allow-breaking', pre ? `prerelease-${pre}` : 'latest-stable']
+
+  const fancyOptions = [
+    save ? 'non-breaking' : 'allow-breaking',
+    pre ? `prerelease-${pre === true ? '*' : pre}` : 'latest-stable',
+  ]
   console.log(fancy(`opt  ${fancyOptions.join(' | ')}`))
 
   const dependencies = await getDependencies(packageJsonPath)
@@ -26,14 +31,28 @@ export const runAuto = async (command: Command) => {
         console.error(error(`No versions found for package: ${formatDependencyName(dependency)}`))
         continue
       }
-      let eligableVersions = versions
 
-      if (pre) {
-        const preRegex = new RegExp(`${pre}\\.\\d+$`)
-        eligableVersions = versions.filter(version => preRegex.test(version))
-      } else if (save) {
+      let eligableVersions = versions.filter(version =>
+        semver.gte(version, dependency.installedVersion ?? dependency.version),
+      )
+
+      if (pre === true) {
+        // allow any prerelease version
+        const preRegex = new RegExp(`\\-.*\\.\\d+$`)
+        eligableVersions = eligableVersions.filter(version => preRegex.test(version))
+      } else if (pre) {
+        // allow only prerelease versions with specific pre-release id
+        const preRegex = new RegExp(`\\-${pre}\\.\\d+$`)
+        eligableVersions = eligableVersions.filter(version => preRegex.test(version))
+      } else {
+        // don't allow prerelease versions
+        eligableVersions = eligableVersions.filter(version => !version.includes('-'))
+      }
+
+      if (save) {
+        // allow only version of the same major version
         const currentMajor = dependency.installedVersion?.split('.')[0] ?? ''
-        eligableVersions = versions.filter(version => version.startsWith(currentMajor) && !version.includes('-'))
+        eligableVersions = eligableVersions.filter(version => version.startsWith(currentMajor))
       }
 
       const newVersion = eligableVersions[0]
