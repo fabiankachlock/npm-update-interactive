@@ -1,7 +1,8 @@
 import promps from 'prompts'
 import { Dependency, PackageUpdate } from './types'
-import { green, blue, cyan, yellow, gray, bold } from 'yoctocolors-cjs'
+import { green, blue, cyan, yellow, gray, bold, red } from 'yoctocolors-cjs'
 import { GenericFormatter, SingleBar } from 'cli-progress'
+import semver from 'semver'
 
 export const getPackageToUpdate = async (dependencies: Dependency[]): Promise<string[]> => {
   const { packages } = await promps({
@@ -97,13 +98,26 @@ export const formatDependencyName = (dependency: Dependency, text?: string): str
   return textToFormat
 }
 
+const formatVersionBump = (dependency: Dependency, newVersion: string): string => {
+  const diff = semver.diff(dependency.installedVersion ?? dependency.version, newVersion)
+  if (!diff) {
+    return gray(newVersion)
+  }
+  if (diff.includes('major')) {
+    return bold(red(newVersion))
+  } else if (diff.includes('minor')) {
+    return bold(yellow(newVersion))
+  }
+  return bold(newVersion)
+}
+
 export const printUpdates = (updates: PackageUpdate[]): void => {
   console.log(gray('Selected packages to update:'))
   const table = updates.map(({ dependency, newVersion }) => [
     formatDependencyName(dependency),
     gray(dependency.installedVersion ?? dependency.version),
     bold(gray('►')),
-    bold(newVersion),
+    formatVersionBump(dependency, newVersion),
   ])
 
   const maxLengths = table.reduce(

@@ -2,6 +2,8 @@ import fs from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { Dependency, PackageUpdate } from './types'
+import semver from 'semver'
+import { get } from 'node:http'
 
 export const findProjectPackageJson = (givenPath?: string): string | undefined => {
   let currentPath = givenPath ?? path.join(process.cwd(), 'package.json')
@@ -53,6 +55,17 @@ export const findePackageManager = async (packageJsonPath: string): Promise<stri
   return 'npm'
 }
 
+const getVersionPrefix = (version: string): string => {
+  let prefix = ''
+  for (const char of version) {
+    if (/[0-9]/.test(char)) {
+      break
+    }
+    prefix += char
+  }
+  return prefix
+}
+
 export const getDependencies = async (packageJsonPath: string): Promise<Dependency[]> => {
   const packageJson = await readFile(packageJsonPath, 'utf-8')
 
@@ -62,21 +75,23 @@ export const getDependencies = async (packageJsonPath: string): Promise<Dependen
     .concat(Object.entries(devDependencies))
     .concat(Object.entries(peerDependencies))
     .map(([name, version]) => {
+      const prefix = getVersionPrefix(version as string)
       const dependencyInfo: Dependency = {
         name,
         type: dependencies[name] ? 'normal' : devDependencies[name] ? 'dev' : 'peer',
-        version: version as string,
+        version: semver.clean((version as string).substring(prefix.length), { loose: true })!,
+        prefix,
       }
 
       try {
         const dependencyPackageJsonPath = findDependencyPackageJson(packageJsonPath, name)
         if (!dependencyPackageJsonPath) return dependencyInfo
 
-        return new Promise<Dependency>(async (resolve, reject) => {
+        return new Promise<Dependency>(async resolve => {
           const dependencyPackage = await readFile(dependencyPackageJsonPath, 'utf-8')
           resolve({
             ...dependencyInfo,
-            installedVersion: JSON.parse(dependencyPackage ?? '').version,
+            installedVersion: semver.clean(JSON.parse(dependencyPackage ?? '').version)!,
           })
         })
       } catch {
@@ -92,10 +107,9 @@ export const writeUpdates = async (packageJsonPath: string, updates: PackageUpda
 
   for (const { dependency, newVersion } of updates) {
     const regex = new RegExp(`"${dependency.name}":\\s*".*"`, 'g')
-    const oldVersionPrefix = dependency.version.charAt(0)
     let versionToWrite = newVersion
-    if (isNaN(Number(oldVersionPrefix))) {
-      versionToWrite = oldVersionPrefix + newVersion
+    if (dependency.prefix) {
+      versionToWrite = dependency.prefix + newVersion
     }
     const updatedDependency = `"${dependency.name}": "${versionToWrite}"`
     packageJson = packageJson.replace(regex, updatedDependency)

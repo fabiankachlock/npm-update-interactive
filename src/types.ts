@@ -3,6 +3,7 @@ export type Dependency = {
   type: 'normal' | 'dev' | 'peer'
   version: string
   installedVersion?: string
+  prefix?: string
 }
 
 export type PackageUpdate = {
