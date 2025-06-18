@@ -5,7 +5,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite build && node build/cli.js",
-    "prettier": "^4.0.0-alpha.12",
+    "format": "prettier --write ./src/**",
     "nui": "node build/cli.js"
   },
   "bin": {
