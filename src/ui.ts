@@ -4,9 +4,9 @@ import { green, blue, cyan, yellow, gray, bold, red } from 'yoctocolors-cjs'
 import { GenericFormatter, SingleBar } from 'cli-progress'
 import semver from 'semver'
 
-export const getPackageToUpdate = async (dependencies: Dependency[]): Promise<string[]> => {
+export const getPackageToUpdate = async (dependencies: Dependency[], batchModeEnabled: boolean): Promise<string[]> => {
   const { packages } = await promps({
-    type: 'autocompleteMultiselect',
+    type: batchModeEnabled ? 'autocompleteMultiselect' : 'autocomplete',
     name: 'packages',
     hint: '',
     instructions: false,
@@ -25,7 +25,7 @@ export const getPackageToUpdate = async (dependencies: Dependency[]): Promise<st
       }
     }),
   })
-  return packages
+  return batchModeEnabled ? packages : packages ? [packages] : []
 }
 
 export const getNewPackageVersion = async (
@@ -62,16 +62,19 @@ export const getNewPackageVersion = async (
   return version
 }
 
-export const getNextStep = async (): Promise<'update' | 'select' | 'abort'> => {
+export const getNextStep = async (batchModeEnabled: boolean): Promise<'update' | 'select' | 'abort' | 'print'> => {
   const { nextStep } = await promps({
     type: 'select',
     name: 'nextStep',
     message: 'What do you want to do next?',
+    initial: batchModeEnabled ? 1 : 0,
     choices: [
+      batchModeEnabled && { title: yellow('Select more packages'), value: 'select' },
+      !batchModeEnabled && { title: yellow('Continue'), value: 'select' },
+      !batchModeEnabled && { title: cyan('Print updates'), value: 'print' },
       { title: green('Update packages'), value: 'update' },
-      { title: yellow('Select more packages'), value: 'select' },
       { title: gray('Abort'), value: 'abort' },
-    ],
+    ].filter(choice => !!choice),
   })
   return nextStep
 }

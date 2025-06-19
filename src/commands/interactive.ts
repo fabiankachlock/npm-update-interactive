@@ -8,11 +8,12 @@ import { prepare } from '../prepare'
 
 export const runInteractive = async (command: Command) => {
   const { packageJsonPath, packageManagerName } = await prepare(command)
+  const { batch } = command.opts()
   const dependencies = await getDependencies(packageJsonPath)
   const allUpdates = {} as Record<string, PackageUpdate>
 
   while (true) {
-    const updates = await getPackageToUpdate(dependencies)
+    const updates = await getPackageToUpdate(dependencies, batch)
     if ((!updates || updates.length === 0) && Object.keys(allUpdates).length === 0) {
       console.log(info('No packages selected'))
     }
@@ -41,26 +42,30 @@ export const runInteractive = async (command: Command) => {
       }
     }
 
-    if (Object.keys(allUpdates).length === 0) {
+    if (batch && Object.keys(allUpdates).length === 0) {
       console.log(info('No updates selected'))
-    } else {
+    } else if (batch) {
       printUpdates(Object.values(allUpdates))
     }
 
-    const nextStep = await getNextStep()
-    if (nextStep === 'abort') {
-      console.log(info('Aborting...'))
-      process.exit(0)
-    }
+    while (true) {
+      const nextStep = await getNextStep(batch)
+      if (nextStep === 'abort') {
+        console.log(info('Aborting...'))
+        process.exit(0)
+      } else if (nextStep === 'print') {
+        printUpdates(Object.values(allUpdates))
+      } else if (nextStep === 'update') {
+        console.log(info('Updating packages...'))
+        await writeUpdates(packageJsonPath, Object.values(allUpdates))
 
-    if (nextStep === 'update') {
-      console.log(info('Updating packages...'))
-      await writeUpdates(packageJsonPath, Object.values(allUpdates))
+        console.log(info('Installing dependencies...'))
+        await runInstall(packageManagerName, packageJsonPath)
 
-      console.log(info('Installing dependencies...'))
-      await runInstall(packageManagerName, packageJsonPath)
-
-      process.exit(0)
+        process.exit(0)
+      } else {
+        break
+      }
     }
   }
 }

@@ -32,6 +32,7 @@ This launches nui in interactive mode, where you can select which packages to up
 | Option                    | Description                           |
 | ------------------------- | ------------------------------------- |
 | `-h`, `--help`            | show help                             |
+| `-b`, `--batch`           | (optional) enable batch mode          |
 | `-c`, `--config`          | (optional) path to the package.json   |
 | `-p`, `--package-manager` | (optional) the package manager to use |
 

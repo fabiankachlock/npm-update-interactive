@@ -19,6 +19,7 @@ import { runAuto } from '../commands/auto'
   program
     .command('interactive', { isDefault: true })
     .description('Start updating packages in interactive mode')
+    .option('-b, --batch', 'enable batch mode', false)
     .configureHelp({ showGlobalOptions: true })
     .passThroughOptions()
     .action(async (_, command) => {
