@@ -62,12 +62,15 @@ export const getNewPackageVersion = async (
   return version
 }
 
-export const getNextStep = async (batchModeEnabled: boolean): Promise<'update' | 'select' | 'abort' | 'print'> => {
+export const getNextStep = async (
+  batchModeEnabled: boolean,
+  presSelectAbort?: boolean,
+): Promise<'update' | 'select' | 'abort' | 'print'> => {
   const { nextStep } = await promps({
     type: 'select',
     name: 'nextStep',
     message: 'What do you want to do next?',
-    initial: batchModeEnabled ? 1 : 0,
+    initial: presSelectAbort ? (batchModeEnabled ? 2 : 3) : batchModeEnabled ? 1 : 0,
     choices: [
       batchModeEnabled && { title: yellow('Select more packages'), value: 'select' },
       !batchModeEnabled && { title: yellow('Continue'), value: 'select' },

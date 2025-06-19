@@ -68,10 +68,14 @@ export const runInteractive = async (command: Command) => {
     process.exit(0)
   }
 
+  let preSelectAbort = false
   while (nextStep !== 'abort') {
     if (nextStep === 'select') {
       const updates = await select()
       Object.assign(allUpdates, updates)
+      if (Object.keys(updates).length === 0) {
+        preSelectAbort = true
+      }
     } else if (nextStep === 'print') {
       print()
     } else if (nextStep === 'update') {
@@ -79,7 +83,7 @@ export const runInteractive = async (command: Command) => {
     } else {
       break
     }
-    nextStep = await getNextStep(batch)
+    nextStep = await getNextStep(batch, preSelectAbort)
   }
 
   console.log(info('Aborting...'))
