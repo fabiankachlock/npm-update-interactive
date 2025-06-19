@@ -5,10 +5,9 @@ export const width = process.stdout.columns || 80
 export const fancy = (text: string, renderBold?: boolean): string => {
   const padding = width - text.length - 2 - 2
   const textToRender = renderBold ? bold(text) : text
-  return `${bgBlack(red('⥏'))}${bgBlack(blue('  ' + textToRender + ''.padEnd(padding, ' ')))}${bgBlack(red('⥑'))}`
+  return `${red('⥏')}${blue('  ' + textToRender + ''.padEnd(padding, ' '))}${red('⥑')}`
 }
 
-export const info = (text: string): string =>
-  `${bgBlack(` ${italic(blue(text))}${''.padEnd(width - text.length - 1)}`)}`
+export const info = (text: string): string => ` ${italic(blue(text))}${''.padEnd(width - text.length - 1)}`
 
-export const error = (text: string): string => bgBlack(` ${magenta(bold('ERROR'))} ${text} `)
+export const error = (text: string): string => ` ${magenta(bold('ERROR'))} ${text} `
