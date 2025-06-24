@@ -1,6 +1,6 @@
 import promps from 'prompts'
 import { Dependency, PackageUpdate } from './types'
-import { green, blue, cyan, yellow, gray, bold, red } from 'yoctocolors-cjs'
+import { green, blue, cyan, yellow, gray, bold, red, magenta } from 'yoctocolors-cjs'
 import { GenericFormatter, SingleBar } from 'cli-progress'
 import semver from 'semver'
 
@@ -66,16 +66,18 @@ export const getNewPackageVersion = async (
 export const getNextStep = async (
   batchModeEnabled: boolean,
   presSelectAbort?: boolean,
-): Promise<'update' | 'select' | 'abort' | 'print'> => {
+): Promise<'update' | 'select' | 'abort' | 'print' | 'toggleBatch'> => {
   const { nextStep } = await promps({
     type: 'select',
     name: 'nextStep',
     message: 'What do you want to do next?',
-    initial: presSelectAbort ? (batchModeEnabled ? 2 : 3) : batchModeEnabled ? 1 : 0,
+    initial: presSelectAbort ? (batchModeEnabled ? 3 : 4) : batchModeEnabled ? 1 : 0,
     choices: [
       batchModeEnabled && { title: yellow('Select more packages'), value: 'select' },
       !batchModeEnabled && { title: yellow('Continue'), value: 'select' },
       !batchModeEnabled && { title: cyan('Print updates'), value: 'print' },
+      !batchModeEnabled && { title: magenta('Enable batch mode'), value: 'toggleBatch' },
+      batchModeEnabled && { title: magenta('Disable batch mode'), value: 'toggleBatch' },
       { title: green('Update packages'), value: 'update' },
       { title: gray('Abort'), value: 'abort' },
     ].filter(choice => !!choice),

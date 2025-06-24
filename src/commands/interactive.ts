@@ -8,20 +8,20 @@ import { prepare } from '../prepare'
 
 export const runInteractive = async (command: Command) => {
   const { packageJsonPath, packageManagerName } = await prepare(command)
-  const { batch } = command.opts()
+  const { batch: batchEnabledInitially } = command.opts()
   const dependencies = await getDependencies(packageJsonPath)
   const allUpdates = {} as Record<string, PackageUpdate>
   let nextStep = 'select'
 
+  let batchModeEnabled = !!batchEnabledInitially
   const select = async (): Promise<Record<string, PackageUpdate>> => {
-    const updates = await getPackageToUpdate(dependencies, batch)
+    const updates = await getPackageToUpdate(dependencies, batchModeEnabled)
     if ((!updates || updates.length === 0) && Object.keys(allUpdates).length === 0) {
       console.log(info('No packages selected'))
+      return {}
     }
 
-    if (!updates) return {}
     const newVersions = {} as Record<string, PackageUpdate>
-
     for (const dependencyName of updates) {
       const dependency = dependencies.find(dependency => dependency.name === dependencyName)!
       try {
@@ -45,7 +45,7 @@ export const runInteractive = async (command: Command) => {
     }
 
     // automatically print selected updates in batch mode
-    if (batch) print()
+    if (batchModeEnabled) print()
     return newVersions
   }
 
@@ -54,6 +54,16 @@ export const runInteractive = async (command: Command) => {
       console.log(info('No updates selected'))
     } else {
       printUpdates(Object.values(allUpdates))
+    }
+  }
+
+  const toggleBatchMode = () => {
+    batchModeEnabled = !batchModeEnabled
+    console.log(info(`Batch mode is now ${batchModeEnabled ? 'enabled' : 'disabled'}`))
+    if (batchModeEnabled) {
+      console.log(info('You can select multiple packages to update at once.'))
+    } else {
+      console.log(info('You can only select one package to update at a time.'))
     }
   }
 
@@ -80,10 +90,14 @@ export const runInteractive = async (command: Command) => {
       print()
     } else if (nextStep === 'update') {
       await update()
+    } else if (nextStep === 'toggleBatch') {
+      toggleBatchMode()
+      nextStep = 'select'
+      continue
     } else {
       break
     }
-    nextStep = await getNextStep(batch, preSelectAbort)
+    nextStep = await getNextStep(batchModeEnabled, preSelectAbort)
   }
 
   console.log(info('Aborting...'))
