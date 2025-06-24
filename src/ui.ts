@@ -10,7 +10,8 @@ export const getPackageToUpdate = async (dependencies: Dependency[], batchModeEn
     name: 'packages',
     hint: '',
     instructions: false,
-    message: 'Select packages to update',
+    message: `Select ${batchModeEnabled ? 'packages' : ' a package'} to update`,
+    suggest: (input, choices) => Promise.resolve(choices.filter(i => i.value.includes(input))),
     choices: dependencies.map(dependency => {
       const hasSameInstalledVersion = dependency.version.endsWith(dependency.installedVersion ?? '#')
       const currentVersion = hasSameInstalledVersion
