@@ -172,7 +172,7 @@ const createBarFormatter =
     const inProgressBar = (options.barCompleteChar ?? '#').repeat(inProgressWidth)
     const incompleteBar = (options.barIncompleteChar ?? '-').repeat(incompleteWidth)
 
-    const progress = `${cyan(params.value.toString())}/${params.total}`
+    const progress = `${cyan((payload?.done ?? 0).toString())}/${params.total}`
 
     return `${message} [${cyan(doneBar)}${gray(inProgressBar)}${gray(incompleteBar)}] ${progress}`
   }
