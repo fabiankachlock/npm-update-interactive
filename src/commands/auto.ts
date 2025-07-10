@@ -79,7 +79,13 @@ export const runAuto = async (command: Command) => {
       const newVersion = eligableVersions[0]
       if (newVersion && newVersion !== (dependency.installedVersion ?? dependency.version)) {
         allUpdates[dependency.name] = {
-          dependency,
+          dependency: {
+            ...dependency,
+            // remove prefix for prerelease versions
+            // this ensure that the correct version is installed
+            // otherwise we fall back to '^' to allow running auto after prerelease version were installed
+            prefix: pre ? '' : dependency.prefix || '^',
+          },
           newVersion,
         }
       }
